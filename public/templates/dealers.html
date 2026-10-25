@@ -1,0 +1,61 @@
+<!-- Dealers Template -->
+<div class="page-dealers">
+  <div class="container">
+    <h2>Dealer Locator</h2>
+    <div class="filter-row">
+      <select ng-model="vm.cityFilter" ng-change="vm.filterCity()" class="form-select">
+        <option value="">All Cities</option>
+        <option ng-repeat="c in vm.cities" value="{{c}}">{{c}}</option>
+      </select>
+    </div>
+
+    <div class="loading" ng-if="vm.loading">Loading dealers...</div>
+
+    <div class="dealers-grid" ng-if="!vm.loading">
+      <div class="dealer-card" ng-repeat="dealer in vm.dealers">
+        <div class="dealer-card-header">
+          <span class="dealer-verified" ng-if="dealer.verified">✓ Verified</span>
+        </div>
+        <h3>{{dealer.name}}</h3>
+        <p class="dealer-city">📍 {{dealer.city}}</p>
+        <p class="dealer-address">{{dealer.address}}</p>
+        <div class="dealer-contact">
+          <span>{{dealer.contact_name}}</span> &bull; <a href="mailto:{{dealer.contact_email}}">{{dealer.contact_email}}</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test Drive Booking Form -->
+    <div class="book-form-section">
+      <h3>Book a Test Drive</h3>
+      <div class="alert alert-success" ng-if="vm.bookMsg">{{vm.bookMsg}}</div>
+      <div class="alert alert-error" ng-if="vm.bookError">{{vm.bookError}}</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Select Dealer</label>
+          <select ng-model="vm.booking.dealer_id" class="form-select">
+            <option value="">Car's own dealer (default)</option>
+            <option ng-repeat="d in vm.dealers" value="{{d.id}}">{{d.name}} ({{d.city}})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Select Car</label>
+          <select ng-model="vm.booking.car_id" class="form-select">
+            <option value="">-- Select Car --</option>
+            <option ng-repeat="c in vm.cars" value="{{c.id}}">{{c.brand_name}} {{c.model_name}} {{c.variant_name}} ({{c.city}})</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preferred Date</label>
+          <input type="date" ng-model="vm.booking.scheduled_date" ng-attr-min="{{vm.today}}" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" ng-model="vm.booking.notes" class="form-input" placeholder="Any special requests">
+        </div>
+      </div>
+      <button class="btn btn-primary" ng-click="vm.book()">Book Test Drive</button>
+      <div ng-if="!vm.user" class="alert alert-info mt-2"><a href="#!/login">Login</a> to book a test drive.</div>
+    </div>
+  </div>
+</div>

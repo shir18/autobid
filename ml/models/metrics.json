@@ -1,0 +1,15 @@
+{
+  "used_price": {
+    "samples": 9000,
+    "r2": 0.9949,
+    "mae_inr": 38570,
+    "mape_pct": 4.44,
+    "data": "synthetic"
+  },
+  "bid_price": {
+    "samples": 6000,
+    "r2": 0.8722,
+    "mae_ratio": 0.0122,
+    "data": "synthetic"
+  }
+}

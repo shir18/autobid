@@ -1,0 +1,89 @@
+<!-- Used Cars Template -->
+<div class="page-listing">
+  <div class="container">
+    <div class="listing-layout">
+      <aside class="filters-panel">
+        <h3>Used Car Filters</h3>
+        <div class="filter-group">
+          <label>City</label>
+          <select ng-model="vm.filters.city" class="form-select">
+            <option value="">All Cities</option>
+            <option ng-repeat="c in vm.cities" value="{{c}}">{{c}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Year</label>
+          <select ng-model="vm.filters.year" class="form-select">
+            <option value="">Any Year</option>
+            <option ng-repeat="y in vm.years" value="{{y}}">{{y}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>KM Driven</label>
+          <select ng-model="vm.filters.maxKm" class="form-select">
+            <option value="">Any KM</option>
+            <option ng-repeat="k in vm.kmOptions" value="{{k.val}}">{{k.label}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Owner Count</label>
+          <select ng-model="vm.filters.owner" class="form-select">
+            <option value="">Any</option>
+            <option ng-repeat="o in vm.ownerOptions" value="{{o.val}}">{{o.label}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Min Price (₹)</label>
+          <input type="number" ng-model="vm.filters.minPrice" class="form-input" placeholder="300000">
+        </div>
+        <div class="filter-group">
+          <label>Max Price (₹)</label>
+          <input type="number" ng-model="vm.filters.maxPrice" class="form-input" placeholder="3000000">
+        </div>
+        <button class="btn btn-primary w-full" ng-click="vm.applyFilters()">Apply</button>
+        <button class="btn btn-outline w-full mt-2" ng-click="vm.clearFilters()">Clear</button>
+      </aside>
+
+      <main class="listing-main">
+        <div class="listing-header">
+          <h2>Used Cars <span class="count">({{vm.total}} results)</span></h2>
+        </div>
+        <div ng-if="vm.compareMsg" class="alert alert-warn">{{vm.compareMsg}}</div>
+        <div class="loading" ng-if="vm.loading">Loading...</div>
+        <div class="cars-grid" ng-if="!vm.loading">
+          <div class="car-card" ng-repeat="car in vm.cars">
+            <a href="#!/new-cars/{{car.id}}">
+              <img ng-src="{{car.image_url}}" alt="{{car.brand_name}} {{car.model_name}}" class="car-img" onerror="this.src='/img/car-placeholder.svg'">
+            </a>
+            <div class="car-card-body">
+              <div class="car-card-brand">{{car.brand_name}}</div>
+              <div class="car-card-name">{{car.model_name}} {{car.variant_name}}</div>
+              <div class="car-card-price">{{car.listing_price | inr}}</div>
+              <div class="car-card-meta">
+                <span class="tag">{{car.year}}</span>
+                <span class="tag">{{car.km_driven | number}} km</span>
+                <span class="tag">{{car.owner_count}} owner(s)</span>
+              </div>
+              <fair-price-badge listing-id="car.id" price="car.listing_price"></fair-price-badge>
+            </div>
+            <div class="car-card-footer">
+              <a href="#!/new-cars/{{car.id}}" class="btn btn-sm btn-outline">Details</a>
+              <button class="btn btn-sm btn-ghost" ng-click="vm.addToCompare(car)">+ Compare</button>
+            </div>
+          </div>
+        </div>
+        <div class="no-results" ng-if="!vm.loading && !vm.cars.length">
+          No used cars found. <a href="" ng-click="vm.clearFilters()">Clear filters</a>
+        </div>
+        <div class="compare-bar" ng-if="vm.compareCount > 0">
+          <span>{{vm.compareCount}} car(s) in Compare</span>
+          <button class="btn btn-primary btn-sm" ng-click="vm.goCompare()">View Compare</button>
+        </div>
+        <div class="pagination" ng-if="vm.totalPages() > 1">
+          <button class="btn btn-sm btn-ghost" ng-repeat="p in vm.pages()" ng-click="vm.setPage(p)"
+                  ng-class="{'btn-primary': vm.page === p, 'btn-ghost': vm.page !== p}">{{p}}</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

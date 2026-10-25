@@ -1,0 +1,188 @@
+<!-- Dealer Dashboard Template -->
+<div class="page-dashboard">
+  <div class="container">
+    <div class="dashboard-header">
+      <h2>Dealer Dashboard</h2>
+      <span class="welcome">{{vm.dealer.name || vm.user.name}} <span ng-if="vm.dealer">· {{vm.dealer.city}}</span></span>
+    </div>
+
+    <div class="alert" ng-if="vm.notice" ng-class="vm.notice.type === 'success' ? 'alert-success' : 'alert-error'">{{vm.notice.text}}</div>
+
+    <div class="dash-tabs">
+      <button class="dash-tab" ng-class="{'active': vm.tab==='requirements'}" ng-click="vm.selectTab('requirements')">Open Requirements</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='offers'}" ng-click="vm.selectTab('offers')">My Offers</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='orders'}" ng-click="vm.selectTab('orders')">Orders</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='bookings'}" ng-click="vm.selectTab('bookings')">Test Drives</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='inventory'}" ng-click="vm.selectTab('inventory')">Inventory</button>
+    </div>
+
+    <!-- Open Requirements -->
+    <div ng-show="vm.tab==='requirements'">
+      <h3>Open Buyer Requirements</h3>
+      <p class="hint">Reverse bidding: the buyer picks the best deal. You can lower your bid any time before they accept.</p>
+      <div class="loading" ng-if="vm.loading.requirements">Loading...</div>
+      <div class="req-card card" ng-repeat="req in vm.requirements">
+        <div class="req-header">
+          <span class="badge badge-green">Open</span>
+          <span>📍 {{req.city}}</span>
+          <span>{{req.created_at | date:'mediumDate'}}</span>
+        </div>
+        <div class="req-details">
+          Budget: <strong>{{req.budget_min | inr}} – {{req.budget_max | inr}}</strong>
+          &bull; {{req.body_type || 'Any body'}} &bull; {{req.fuel || 'Any fuel'}}
+          &bull; within {{req.timeline_days}} days
+          &bull; Buyer: {{req.buyer_name}}
+          &bull; {{req.offer_count}} offer(s) so far
+          <span ng-if="req.lowest_offer"> &bull; lowest bid <strong>{{req.lowest_offer | inr}}</strong></span>
+        </div>
+        <div class="alert alert-info" ng-if="req.my_offer_price">
+          Your current offer: <strong>{{req.my_offer_price | inr}}</strong>
+          <span ng-if="req.my_offer_price <= req.lowest_offer">— you are the lowest bidder 🏆</span>
+          <span ng-if="req.my_offer_price > req.lowest_offer">— someone is {{(req.my_offer_price - req.lowest_offer) | inr}} cheaper</span>
+        </div>
+
+        <!-- Offer Form -->
+        <div class="offer-form" ng-if="vm.dealer">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>{{req.my_offer_id ? 'New price (₹)' : 'Your Price (₹)'}}</label>
+              <input type="number" min="1" ng-model="vm.form(req).price" class="form-input" placeholder="1200000">
+            </div>
+            <div class="form-group">
+              <label>Delivery Days</label>
+              <input type="number" min="1" ng-model="vm.form(req).delivery_days" class="form-input" placeholder="14">
+            </div>
+            <div class="form-group">
+              <label>Freebies</label>
+              <input type="text" ng-model="vm.form(req).freebies" class="form-input" placeholder="e.g. Free 2-year service">
+            </div>
+          </div>
+          <div class="ml-hint" ng-if="vm.bidHints[req.id]">
+            🤖 Suggested bid <strong>{{vm.bidHints[req.id].suggested_price | inr}}</strong>
+            <small>(typical range {{vm.bidHints[req.id].range_low | inr}} – {{vm.bidHints[req.id].range_high | inr}}, {{vm.bidHints[req.id].competing_offers}} competing offer(s))</small>
+            <span ng-if="vm.bidHints[req.id].beat_lowest_price"> · to beat the current lowest bid: <strong>{{vm.bidHints[req.id].beat_lowest_price | inr}}</strong></span>
+            <a href="" ng-click="vm.useSuggestedBid(req, vm.bidHints[req.id].suggested_price)">use this price</a>
+          </div>
+          <button class="btn btn-outline btn-sm" ng-click="vm.suggestBid(req)">🤖 Suggest a competitive bid</button>
+          <button class="btn btn-primary btn-sm" ng-click="vm.submitOffer(req)">{{req.my_offer_id ? 'Update Offer' : 'Submit Offer'}}</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.requirements && !vm.requirements.length">No open requirements right now.</div>
+    </div>
+
+    <!-- My Offers -->
+    <div ng-show="vm.tab==='offers'">
+      <h3>My Submitted Offers</h3>
+      <div class="loading" ng-if="vm.loading.offers">Loading...</div>
+      <div class="offer-row card" ng-repeat="offer in vm.myOffers">
+        <div>
+          <span class="badge" ng-class="offer.status | statusClass">{{offer.status | statusLabel}}</span>
+          Requirement #{{offer.requirement_id}} — {{offer.req_city}}
+        </div>
+        <div>Price: <strong>{{offer.price | inr}}</strong> &bull; Delivery: {{offer.delivery_days}} days
+          <span ng-if="offer.status==='pending' && offer.price > offer.lowest_offer" class="hint"> (lowest bid is {{offer.lowest_offer | inr}})</span>
+        </div>
+        <div ng-if="offer.freebies">🎁 {{offer.freebies}}</div>
+        <div class="offer-req-detail">
+          Budget: {{offer.budget_min | inr}} – {{offer.budget_max | inr}} &bull; {{offer.body_type || 'Any body'}} &bull; {{offer.fuel || 'Any fuel'}}
+        </div>
+        <div class="order-actions" ng-if="offer.status==='pending' && offer.req_status==='open'">
+          <button class="btn btn-sm btn-outline" ng-click="vm.reviseOffer(offer)">Lower my price</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.offers && !vm.myOffers.length">No offers submitted yet.</div>
+    </div>
+
+    <!-- Orders -->
+    <div ng-show="vm.tab==='orders'">
+      <h3>My Orders</h3>
+      <div class="loading" ng-if="vm.loading.orders">Loading...</div>
+      <div class="order-row card" ng-repeat="order in vm.orders">
+        <div class="order-header">
+          <span class="badge" ng-class="order.status | statusClass">{{order.status | statusLabel}}</span>
+          Order #{{order.id}} — {{order.created_at | date:'mediumDate'}}
+        </div>
+        <div>Buyer: <strong>{{order.buyer_name}}</strong> ({{order.buyer_email}})</div>
+        <div>Price: <strong>{{order.offer_price | inr}}</strong> &bull; Delivery: {{order.delivery_days}} days</div>
+        <div class="order-actions">
+          <button class="btn btn-sm btn-primary" ng-if="order.status==='confirmed'" ng-click="vm.updateOrderStatus(order, 'delivered')">Mark Delivered</button>
+          <button class="btn btn-sm btn-ghost" ng-if="order.status==='confirmed'" ng-click="vm.updateOrderStatus(order, 'cancelled')">Cancel</button>
+          <button class="btn btn-sm btn-ghost" ng-click="vm.chatWithBuyer(order)">💬 Chat with buyer</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.orders && !vm.orders.length">No orders yet — win a bid to get one.</div>
+    </div>
+
+    <!-- Test drives -->
+    <div ng-show="vm.tab==='bookings'">
+      <h3>Test-drive Requests</h3>
+      <div class="loading" ng-if="vm.loading.bookings">Loading...</div>
+      <div class="order-row card" ng-repeat="b in vm.bookings">
+        <div class="order-header">
+          <span class="badge" ng-class="b.status | statusClass">{{b.status | statusLabel}}</span>
+          <strong>{{b.brand_name}} {{b.model_name}} {{b.variant_name}}</strong>
+          <span>{{vm.parseDate(b.scheduled_date) | date:'fullDate'}}</span>
+        </div>
+        <div>Buyer: <strong>{{b.buyer_name}}</strong> ({{b.buyer_email}})</div>
+        <div ng-if="b.notes" class="hint">“{{b.notes}}”</div>
+        <div class="order-actions">
+          <button class="btn btn-sm btn-primary" ng-if="b.status==='pending'" ng-click="vm.setBooking(b, 'confirmed')">Confirm</button>
+          <button class="btn btn-sm btn-ghost" ng-if="b.status!=='cancelled'" ng-click="vm.setBooking(b, 'cancelled')">Cancel</button>
+          <button class="btn btn-sm btn-ghost" ng-click="vm.chatWithBookingBuyer(b)">💬 Chat</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.bookings && !vm.bookings.length">No test-drive requests yet.</div>
+    </div>
+
+    <!-- Inventory -->
+    <div ng-show="vm.tab==='inventory'">
+      <div class="tab-header">
+        <h3>My Inventory</h3>
+        <button class="btn btn-primary btn-sm" ng-click="vm.showCarForm = !vm.showCarForm">{{vm.showCarForm ? 'Cancel' : '+ Add listing'}}</button>
+      </div>
+      <div class="req-form card" ng-if="vm.showCarForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Model &amp; variant *</label>
+            <select ng-model="vm.carForm.variant_id" class="form-select">
+              <option value="">-- Select --</option>
+              <option ng-repeat="v in vm.variants" value="{{v.id}}">{{v.brand_name}} {{v.model_name}} {{v.name}} — {{v.price | inr}}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select ng-model="vm.carForm.type" class="form-select"><option value="new">New</option><option value="used">Used</option></select>
+          </div>
+          <div class="form-group"><label>Year *</label><input type="number" ng-model="vm.carForm.year" class="form-input"></div>
+          <div class="form-group" ng-if="vm.carForm.type==='used'"><label>KM driven</label><input type="number" ng-model="vm.carForm.km_driven" class="form-input"></div>
+          <div class="form-group" ng-if="vm.carForm.type==='used'"><label>Owners</label><input type="number" ng-model="vm.carForm.owner_count" class="form-input"></div>
+          <div class="form-group"><label>City *</label><input type="text" ng-model="vm.carForm.city" class="form-input"></div>
+          <div class="form-group"><label>Listing price (₹) *</label><input type="number" min="1" ng-model="vm.carForm.listing_price" class="form-input">
+            <div class="ml-hint" ng-if="vm.priceHint">🤖 Fair value <strong>{{vm.priceHint.price | inr}}</strong>
+              <small>(likely {{vm.priceHint.low | inr}} – {{vm.priceHint.high | inr}})</small>
+              <a href="" ng-click="vm.useEstimate()">use this price</a></div>
+            <button class="btn btn-outline btn-sm mt-1" ng-if="vm.carForm.type==='used'" ng-click="vm.estimatePrice()">🤖 Estimate fair price</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" ng-click="vm.addCar()">Save listing</button>
+      </div>
+
+      <div class="loading" ng-if="vm.loading.inventory">Loading...</div>
+      <div class="order-row card" ng-repeat="car in vm.inventory">
+        <div class="order-header">
+          <span class="badge" ng-class="car.status | statusClass">{{car.status | statusLabel}}</span>
+          <strong>{{car.brand_name}} {{car.model_name}} {{car.variant_name}}</strong>
+          <span>{{car.type === 'used' ? 'Used ' + car.year : 'New'}} · {{car.city}}</span>
+          <span>{{car.listing_price | inr}}</span>
+        </div>
+        <div class="order-actions">
+          <a class="btn btn-sm btn-outline" href="#!/new-cars/{{car.id}}">View</a>
+          <button class="btn btn-sm btn-ghost" ng-if="car.status!=='sold'" ng-click="vm.setCarStatus(car, 'sold')">Mark sold</button>
+          <button class="btn btn-sm btn-ghost" ng-if="car.status!=='available'" ng-click="vm.setCarStatus(car, 'available')">Mark available</button>
+          <button class="btn btn-sm btn-ghost" ng-click="vm.deleteCar(car)">Delete</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.inventory && !vm.inventory.length">No listings yet.</div>
+    </div>
+  </div>
+</div>

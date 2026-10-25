@@ -1,0 +1,115 @@
+<!-- New Cars Listing Template -->
+<div class="page-listing">
+  <div class="container">
+    <div class="listing-layout">
+
+      <!-- Filters Sidebar -->
+      <aside class="filters-panel">
+        <h3>Filters</h3>
+        <div class="filter-group">
+          <label>Brand</label>
+          <select ng-model="vm.filters.brand" class="form-select">
+            <option value="">All Brands</option>
+            <option ng-repeat="b in vm.brands" value="{{b.slug}}">{{b.name}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Body Type</label>
+          <select ng-model="vm.filters.bodyType" class="form-select">
+            <option value="">All Types</option>
+            <option ng-repeat="t in vm.bodyTypes" value="{{t}}">{{t}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Fuel</label>
+          <select ng-model="vm.filters.fuel" class="form-select">
+            <option value="">All Fuels</option>
+            <option ng-repeat="f in vm.fuels" value="{{f}}">{{f}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Transmission</label>
+          <select ng-model="vm.filters.transmission" class="form-select">
+            <option value="">Any</option>
+            <option ng-repeat="t in vm.transmissions" value="{{t}}">{{t}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>City</label>
+          <select ng-model="vm.filters.city" class="form-select">
+            <option value="">All Cities</option>
+            <option ng-repeat="c in vm.cities" value="{{c}}">{{c}}</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Min Price (₹)</label>
+          <input type="number" ng-model="vm.filters.minPrice" class="form-input" placeholder="e.g. 500000">
+        </div>
+        <div class="filter-group">
+          <label>Max Price (₹)</label>
+          <input type="number" ng-model="vm.filters.maxPrice" class="form-input" placeholder="e.g. 2000000">
+        </div>
+        <button class="btn btn-primary w-full" ng-click="vm.applyFilters()">Apply Filters</button>
+        <button class="btn btn-outline w-full mt-2" ng-click="vm.clearFilters()">Clear</button>
+      </aside>
+
+      <!-- Main Listing -->
+      <main class="listing-main">
+        <div class="listing-header">
+          <h2>New Cars <span class="count">({{vm.total}} results)</span></h2>
+          <div class="sort-row">
+            <label>Sort by:</label>
+            <select ng-model="vm.filters.sort" ng-change="vm.applyFilters()" class="form-select sort-select">
+              <option ng-repeat="s in vm.sortOptions" value="{{s.val}}">{{s.label}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div ng-if="vm.compareMsg" class="alert alert-warn">{{vm.compareMsg}}</div>
+
+        <div class="loading" ng-if="vm.loading">Loading cars...</div>
+
+        <div class="cars-grid" ng-if="!vm.loading">
+          <div class="car-card" ng-repeat="car in vm.cars">
+            <a href="#!/new-cars/{{car.id}}">
+              <img ng-src="{{car.image_url}}" alt="{{car.brand_name}} {{car.model_name}}" class="car-img" onerror="this.src='/img/car-placeholder.svg'">
+            </a>
+            <div class="car-card-body">
+              <div class="car-card-brand">{{car.brand_name}}</div>
+              <div class="car-card-name">{{car.model_name}}</div>
+              <div class="car-card-price"><small class="from-label">Starting at</small> {{car.min_price | inr}}<span class="price-upto" ng-if="vm.priceRange(car)"> – {{car.max_price | inr}}</span></div>
+              <div class="car-card-variant">{{car.variant_count}} variant{{car.variant_count > 1 ? 's' : ''}} · choose on the next page</div>
+              <div class="car-card-meta">
+                <span class="tag">{{car.body_type}}</span>
+                <span class="tag" ng-repeat="f in car.fuel_types">{{f}}</span>
+                <span class="tag" ng-repeat="t in car.transmissions">{{t}}</span>
+              </div>
+            </div>
+            <div class="car-card-footer">
+              <a href="#!/new-cars/{{car.id}}" class="btn btn-sm btn-outline">View variants</a>
+              <button class="btn btn-sm btn-ghost" ng-click="vm.addToCompare(car)">+ Compare</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-results" ng-if="!vm.loading && !vm.cars.length">
+          No cars found. <a href="" ng-click="vm.clearFilters()">Clear filters</a>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" ng-if="vm.totalPages() > 1">
+          <button class="btn btn-sm btn-ghost" ng-click="vm.setPage(vm.page - 1)" ng-disabled="vm.page === 1">‹</button>
+          <button class="btn btn-sm" ng-repeat="p in vm.pages()" ng-click="vm.setPage(p)"
+                  ng-class="{'btn-primary': vm.page === p, 'btn-ghost': vm.page !== p}">{{p}}</button>
+          <button class="btn btn-sm btn-ghost" ng-click="vm.setPage(vm.page + 1)" ng-disabled="vm.page === vm.totalPages()">›</button>
+        </div>
+
+        <!-- Compare float bar -->
+        <div class="compare-bar" ng-if="vm.compareCount > 0">
+          <span>{{vm.compareCount}} car(s) in Compare</span>
+          <button class="btn btn-primary btn-sm" ng-click="vm.goCompare()">View Compare</button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

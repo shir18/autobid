@@ -1,0 +1,114 @@
+<!-- True Cost of Ownership Template -->
+<div class="page-tco">
+  <div class="container">
+    <h2>💰 True Cost of Ownership</h2>
+    <p class="tco-sub">Calculate the real 5-year cost of owning a car — EMI, fuel, insurance, and maintenance.</p>
+
+    <div class="tco-layout">
+      <!-- Controls -->
+      <div class="tco-controls">
+        <div class="form-group">
+          <label>Select Car</label>
+          <select ng-model="vm.carId" ng-change="vm.selectCar(vm.carId)" class="form-select">
+            <option ng-repeat="c in vm.cars" value="{{c.id}}">
+              {{c.brand_name}} {{c.model_name}} {{c.variant_name}} — {{c.listing_price | inr}}
+            </option>
+          </select>
+        </div>
+
+        <div class="tco-section">
+          <h4>💳 Loan Details</h4>
+          <div class="slider-group">
+            <label>Down Payment: <strong>{{vm.down | inr}}</strong></label>
+            <input type="range" ng-model="vm.down" min="0" ng-attr-max="{{vm.price}}" step="10000" ng-change="vm.calc()">
+          </div>
+          <div class="slider-group">
+            <label>Interest Rate: <strong>{{vm.rate}}%</strong></label>
+            <input type="range" ng-model="vm.rate" min="6" max="18" step="0.1" ng-change="vm.calc()">
+          </div>
+          <div class="slider-group">
+            <label>Tenure: <strong>{{vm.tenure}} months</strong></label>
+            <input type="range" ng-model="vm.tenure" min="12" max="84" step="6" ng-change="vm.calc()">
+          </div>
+        </div>
+
+        <div class="tco-section">
+          <h4>⛽ Fuel Usage</h4>
+          <div class="slider-group">
+            <label>KM per Month: <strong>{{vm.kmMonth}}</strong></label>
+            <input type="range" ng-model="vm.kmMonth" min="500" max="5000" step="100" ng-change="vm.calc()">
+          </div>
+          <div class="slider-group">
+            <label>Fuel Price (₹/L): <strong>{{vm.fuelPx}}</strong></label>
+            <input type="range" ng-model="vm.fuelPx" min="70" max="150" step="1" ng-change="vm.calc()">
+          </div>
+          <div class="slider-group">
+            <label>Mileage (kmpl): <strong>{{vm.mileage}}</strong></label>
+            <input type="range" ng-model="vm.mileage" min="5" max="40" step="0.5" ng-change="vm.calc()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="tco-results" ng-if="vm.result">
+        <!-- Summary Cards -->
+        <div class="tco-cards">
+          <div class="tco-card blue">
+            <div class="tco-card-icon">💳</div>
+            <div class="tco-card-label">Monthly EMI</div>
+            <div class="tco-card-value">{{vm.result.emi | inr}}</div>
+          </div>
+          <div class="tco-card green">
+            <div class="tco-card-icon">⛽</div>
+            <div class="tco-card-label">5-Year Fuel</div>
+            <div class="tco-card-value">{{vm.result.fuel5 | inr}}</div>
+          </div>
+          <div class="tco-card yellow">
+            <div class="tco-card-icon">🛡️</div>
+            <div class="tco-card-label">5-Year Insurance</div>
+            <div class="tco-card-value">{{vm.result.ins5 | inr}}</div>
+          </div>
+          <div class="tco-card red">
+            <div class="tco-card-icon">🔧</div>
+            <div class="tco-card-label">5-Year Maintenance</div>
+            <div class="tco-card-value">{{vm.result.maint5 | inr}}</div>
+          </div>
+        </div>
+
+        <div class="tco-total">
+          <h3>Total 5-Year Cost: <span class="tco-total-value">{{vm.result.total5 | inr}}</span></h3>
+        </div>
+
+        <!-- SVG Bar Chart (no paid libraries) -->
+        <div class="tco-chart">
+          <h4>Cost Breakdown Chart</h4>
+          <svg ng-attr-width="{{vm.svgW}}" ng-attr-height="{{vm.svgH + 20}}" class="tco-svg">
+            <!-- Bars -->
+            <g ng-repeat="bar in vm.bars">
+              <rect ng-attr-x="{{bar.x}}" ng-attr-y="{{bar.y}}" ng-attr-width="{{bar.w}}" ng-attr-height="{{bar.h}}"
+                    ng-attr-fill="{{bar.color}}" rx="4"></rect>
+              <!-- Labels below bar -->
+              <text ng-attr-x="{{bar.x + bar.w/2}}" ng-attr-y="{{vm.svgH + 14}}"
+                    text-anchor="middle" font-size="10" fill="#374151">{{bar.label}}</text>
+            </g>
+            <!-- Baseline -->
+            <line x1="0" ng-attr-y1="{{vm.svgH}}" ng-attr-x2="{{vm.svgW}}" ng-attr-y2="{{vm.svgH}}"
+                  stroke="#D1D5DB" stroke-width="1"></line>
+          </svg>
+        </div>
+
+        <!-- Breakdown Table -->
+        <table class="tco-table">
+          <tr><td>Vehicle Price</td><td>{{vm.price | inrFull}}</td></tr>
+          <tr><td>Down Payment</td><td>{{vm.down | inrFull}}</td></tr>
+          <tr><td>Loan Amount</td><td>{{(vm.price - vm.down) | inrFull}}</td></tr>
+          <tr><td>5-Year EMI Total</td><td>{{vm.result.emiTotal | inrFull}}</td></tr>
+          <tr><td>5-Year Fuel Cost</td><td>{{vm.result.fuel5 | inrFull}}</td></tr>
+          <tr><td>5-Year Insurance</td><td>{{vm.result.ins5 | inrFull}}</td></tr>
+          <tr><td>5-Year Maintenance</td><td>{{vm.result.maint5 | inrFull}}</td></tr>
+          <tr class="tco-total-row"><td><strong>Grand Total (5 years)</strong></td><td><strong>{{vm.result.total5 | inrFull}}</strong></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

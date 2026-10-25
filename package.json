@@ -1,0 +1,39 @@
+{
+  "name": "autobid",
+  "version": "1.0.0",
+  "description": "AutoBid \u2014 CarWale-style car marketplace with reverse bidding",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "test": "node --test --test-concurrency=1 tests/api.test.js tests/xml.test.js",
+    "test:mysql": "DB_ENGINE=mysql node --test --test-concurrency=1 tests/api.test.js",
+    "test:unit": "jasmine --no-color tests/angular.spec.js",
+    "test:ui": "node tests/ui-smoke.js",
+    "test:all": "npm test && npm run test:ui && npm run test:unit",
+    "train": "python3 ml/train.py",
+    "test:xml": "node --test --test-concurrency=1 tests/xml.test.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.6.3",
+    "mysql2": "^3.6.2",
+    "sql.js": "^1.14.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "jasmine": "^5.13.0",
+    "jasmine-core": "^5.1.1",
+    "jsdom": "^24.1.3",
+    "karma": "^6.4.2",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

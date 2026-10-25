@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dealership SYSTEM "q2_dealership.dtd">
+<dealership>
+  <car>
+    <model>City</model>
+    <brand>Honda</brand>
+    <year>2022</year>
+    <price>1150000</price>
+  </car>
+  <car>
+    <model>Swift</model>
+    <brand>Maruti Suzuki</brand>
+    <year>2023</year>
+    <!-- Price is optional for upcoming/unlisted cars -->
+  </car>
+</dealership>

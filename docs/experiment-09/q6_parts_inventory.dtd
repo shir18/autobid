@@ -1,0 +1,9 @@
+<!ELEMENT inventory (part+)>
+<!ELEMENT part (name, category, price, description?, stock_quantity?)>
+<!ATTLIST part 
+    id ID #REQUIRED>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT category (#PCDATA)>
+<!ELEMENT price (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT stock_quantity (#PCDATA)>

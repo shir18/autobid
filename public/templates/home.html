@@ -1,0 +1,85 @@
+<!-- Home Page Template -->
+<div class="page-home">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Find Your Perfect Car</h1>
+      <p class="hero-sub">Browse new &amp; used cars, compare specs, or let dealers bid for your dream ride</p>
+      <div class="hero-search">
+        <div class="hero-search-row">
+          <select ng-model="vm.search.type" class="form-select">
+            <option value="new">🚗 New Cars</option>
+            <option value="used">🔄 Used Cars</option>
+          </select>
+          <select ng-model="vm.search.city" class="form-select">
+            <option value="">📍 Any City</option>
+            <option ng-repeat="c in vm.cities" value="{{c}}">{{c}}</option>
+          </select>
+          <select ng-model="vm.search.budget" class="form-select">
+            <option value="">💰 Any Budget</option>
+            <option ng-repeat="b in vm.budgets" value="{{b.label}}">{{b.label}}</option>
+          </select>
+          <button class="btn btn-primary btn-lg" ng-click="vm.doSearch()">Search Cars</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Brands -->
+  <section class="section">
+    <div class="container">
+      <h2 class="section-title">🏷️ Popular Brands</h2>
+      <div class="brands-grid">
+        <div class="brand-card" ng-repeat="brand in vm.brands" ng-click="vm.goToBrand(brand.slug)">
+          <div class="brand-logo-placeholder">
+            <span class="brand-initial">{{brand.name.charAt(0)}}</span>
+          </div>
+          <span class="brand-name">{{brand.name}}</span>
+          <span class="brand-count">{{brand.model_count}} models</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Cars -->
+  <section class="section bg-light">
+    <div class="container">
+      <h2 class="section-title">🔥 Trending Cars</h2>
+      <div class="loading" ng-if="vm.loading">Loading...</div>
+      <div class="cars-grid" ng-if="!vm.loading">
+        <div class="car-card" ng-repeat="car in vm.trending">
+          <a href="#!/new-cars/{{car.id}}">
+            <img ng-src="{{car.image_url}}" alt="{{car.brand_name}} {{car.model_name}}" class="car-img" onerror="this.src='/img/car-placeholder.svg'">
+          </a>
+          <div class="car-card-body">
+            <div class="car-card-brand">{{car.brand_name}}</div>
+            <div class="car-card-name">{{car.model_name}}</div>
+            <div class="car-card-price"><small class="from-label">Starting at</small> {{car.min_price | inr}}</div>
+            <div class="car-card-meta">
+              <span class="tag">{{car.body_type}}</span>
+              <span class="tag" ng-repeat="f in car.fuel_types">{{f}}</span>
+              <span class="tag">{{car.variant_count}} variants</span>
+            </div>
+            <fair-price-badge listing-id="car.id" price="car.listing_price"></fair-price-badge>
+          </div>
+          <div class="car-card-footer">
+            <a href="#!/new-cars/{{car.id}}" class="btn btn-sm btn-outline">View Details →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reverse Bidding Banner -->
+  <section class="reverse-bid-banner">
+    <div class="container">
+      <div class="banner-content">
+        <div>
+          <h2>Let Dealers Compete for You! 🏆</h2>
+          <p>Post your requirement — budget, body type, city — and receive competitive offers from verified dealers.</p>
+        </div>
+        <a href="#!/buyer" class="btn btn-white btn-lg">Post Your Requirement →</a>
+      </div>
+    </div>
+  </section>
+</div>

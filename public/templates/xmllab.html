@@ -1,0 +1,63 @@
+<!-- XML Lab (Experiment 8: Practicing with XML formatters) -->
+<div class="page-dashboard">
+  <div class="container">
+    <div class="dashboard-header"><h2>XML Lab</h2><span class="welcome">Well-formed XML · CSS · XSLT</span></div>
+
+    <div class="card">
+      <h4>The car catalog as XML</h4>
+      <p class="text-muted">The same live AutoBid listings are served as XML and displayed three ways — just by changing the
+        <code>&lt;?xml-stylesheet?&gt;</code> line at the top of the document.</p>
+
+      <div class="xml-controls">
+        <button class="btn btn-sm" ng-repeat="m in vm.modes" ng-class="vm.mode===m.id ? 'btn-primary' : 'btn-outline'" ng-click="vm.setMode(m.id)">{{m.label}}</button>
+        <select class="form-select sort-select" ng-model="vm.filters.type">
+          <option value="">New + used</option><option value="new">New cars</option><option value="used">Used cars</option>
+        </select>
+        <select class="form-select sort-select" ng-model="vm.filters.limit" ng-options="n as (n + ' cars') for n in [5,10,25,50]"></select>
+        <a class="btn btn-sm btn-ghost" ng-href="{{vm.url()}}" target="_blank" rel="noopener">Open in new tab ↗</a>
+        <a class="btn btn-sm btn-ghost" ng-href="{{vm.downloadUrl()}}">Download .xml</a>
+      </div>
+      <div class="alert alert-info">{{vm.currentHelp()}}</div>
+      <iframe class="xml-frame" ng-src="{{vm.frameUrl()}}" title="XML preview"></iframe>
+    </div>
+
+    <div class="card">
+      <h4>Formatter &amp; validator</h4>
+      <p class="text-muted">Paste XML, check it is well-formed, then auto-indent it (what an online XML formatter does).</p>
+      <div class="xml-controls">
+        <button class="btn btn-sm btn-primary" ng-click="vm.format()">Validate &amp; format</button>
+        <button class="btn btn-sm btn-outline" ng-click="vm.validate()">Validate only</button>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.loadRaw()" ng-disabled="vm.busy">Load catalog XML</button>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.useSample()">Sample</button>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.useBroken()">Break it</button>
+      </div>
+      <div class="alert alert-error" ng-if="vm.error">{{vm.error}}</div>
+      <textarea class="form-textarea xml-box" spellcheck="false" ng-model="vm.input" aria-label="XML input"></textarea>
+
+      <div class="alert alert-success" ng-if="vm.report && vm.report.valid">
+        ✔ Well-formed — root &lt;{{vm.report.root}}&gt;, {{vm.report.elements}} elements.
+      </div>
+      <div class="alert alert-error" ng-if="vm.report && !vm.report.valid">
+        ✘ Not well-formed:
+        <div ng-repeat="e in vm.report.errors">Line {{e.line}}: {{e.message}}</div>
+      </div>
+
+      <div ng-if="vm.formatted">
+        <h4>Formatted output</h4>
+        <pre class="xml-box xml-out">{{vm.formatted}}</pre>
+        <button class="btn btn-sm btn-outline" ng-click="vm.useFormatted()">Use formatted XML as input</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Hand-written sample catalog (lab steps 1–5)</h4>
+      <p class="text-muted">A small hand-written car catalog (brand / model / city / price), served as static files:</p>
+      <div class="xml-controls">
+        <a class="btn btn-sm btn-outline" href="/xml/catalog.xml" target="_blank" rel="noopener">catalog.xml + CSS</a>
+        <a class="btn btn-sm btn-outline" href="/xml/catalog-xslt.xml" target="_blank" rel="noopener">catalog.xml + XSLT</a>
+        <a class="btn btn-sm btn-ghost" href="/xml/catalog.css" target="_blank" rel="noopener">catalog.css</a>
+        <a class="btn btn-sm btn-ghost" href="/xml/catalog.xsl" target="_blank" rel="noopener">catalog.xsl</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,226 @@
+<!-- Car Detail Template -->
+<div class="page-detail" ng-if="vm.car">
+  <div class="container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <a ng-href="{{vm.car.type === 'used' ? '#!/used-cars' : '#!/new-cars'}}">{{vm.car.type === 'used' ? 'Used Cars' : 'New Cars'}}</a> &rsaquo;
+      <span>{{vm.car.brand_name}} {{vm.car.model_name}}<span ng-if="vm.car.type === 'used'"> {{vm.car.variant_name}}</span></span>
+    </div>
+
+    <div class="detail-layout">
+      <!-- Left: Gallery + Main Info -->
+      <div class="detail-main">
+        <div class="car-gallery">
+          <img ng-src="{{vm.image()}}" alt="{{vm.car.model_name}}" class="gallery-main-img" onerror="this.src='/img/car-placeholder.svg'">
+        </div>
+
+        <div class="detail-header">
+          <h1>{{vm.car.brand_name}} {{vm.car.model_name}} <small>{{vm.isNew() ? vm.selectedVariant.name : vm.car.variant_name}}</small></h1>
+          <div class="rating-line" ng-if="vm.reviews.length"><star-rating rating="vm.avgRating()" readonly="true"></star-rating> {{vm.avgRating()}} ({{vm.reviews.length}} reviews)</div>
+          <div class="detail-price">
+            <span class="ex-label">{{vm.car.type === 'used' ? 'Asking price' : 'Ex-showroom'}}</span>
+            <span class="ex-price">{{vm.currentPrice() | inr}}</span>
+            <fair-price-badge ng-if="vm.hasListing()" listing-id="vm.activeId()" price="vm.currentPrice()"></fair-price-badge>
+          </div>
+          <div class="alert alert-warn mt-1" ng-if="!vm.hasListing()">No dealer is stocking this variant right now — pick another variant to book, shortlist or chat.</div>
+          <div class="detail-actions">
+            <button class="btn btn-primary" ng-click="vm.toggleShortlist()">
+              {{vm.shortlisted ? '♥ Shortlisted' : '♡ Shortlist'}}
+            </button>
+            <button class="btn btn-outline" ng-click="vm.addToCompare()">{{vm.inCompare ? '✓ In Compare' : '⊕ Compare'}}</button>
+            <button class="btn btn-outline" ng-click="vm.chatWithDealer()">💬 Chat with dealer</button>
+          </div>
+          <div ng-if="vm.compareMsg" class="alert alert-info mt-1">{{vm.compareMsg}}</div>
+          <div ng-if="vm.shortlistMsg" class="alert alert-warn mt-1">{{vm.shortlistMsg}}</div>
+          <div ng-if="vm.chatMsg" class="alert alert-warn mt-1">{{vm.chatMsg}}</div>
+        </div>
+
+        <!-- Variant Selector: picking a variant changes the specs, price, dealer and listing below -->
+        <div class="variant-selector" ng-if="vm.car.type === 'new' && vm.car.variants && vm.car.variants.length > 1">
+          <h3>Select Variant <small class="variant-count">({{vm.car.variants.length}} available)</small></h3>
+          <div class="fuel-chips" ng-if="vm.fuels().length > 1">
+            <button class="chip" ng-class="{'active': !vm.fuelFilter}" ng-click="vm.setFuel('')">All fuels</button>
+            <button class="chip" ng-repeat="f in vm.fuels()" ng-class="{'active': vm.fuelFilter === f}" ng-click="vm.setFuel(f)">{{f}}</button>
+          </div>
+          <div class="variant-tabs">
+            <button class="variant-tab" ng-repeat="v in vm.visibleVariants()"
+                    ng-class="{'active': vm.selectedVariant && vm.selectedVariant.id === v.id}"
+                    ng-click="vm.selectVariant(v)">
+              {{v.name}}<br><small>{{(v.listing.listing_price || v.price) | inr}}</small><br>
+              <small class="variant-sub">{{v.fuel_type}} · {{v.transmission}}</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn" ng-class="{'active': vm.tab==='specs'}"   ng-click="vm.tab='specs'">Specs</button>
+          <button class="tab-btn" ng-if="vm.isNew() && vm.car.variants.length > 1" ng-class="{'active': vm.tab==='variants'}" ng-click="vm.tab='variants'">All Variants</button>
+          <button class="tab-btn" ng-class="{'active': vm.tab==='price'}"   ng-click="vm.tab='price'">On-Road Price</button>
+          <button class="tab-btn" ng-class="{'active': vm.tab==='emi'}"     ng-click="vm.tab='emi'">EMI</button>
+          <button class="tab-btn" ng-class="{'active': vm.tab==='reviews'}" ng-click="vm.tab='reviews'">Reviews</button>
+          <button class="tab-btn" ng-class="{'active': vm.tab==='book'}"    ng-click="vm.tab='book'">Book Test Drive</button>
+        </div>
+
+        <!-- Specs Tab — every value below belongs to the SELECTED variant -->
+        <div ng-show="vm.tab==='specs'" class="specs-table">
+          <table>
+            <tr><th>Variant</th><td>{{vm.isNew() ? vm.selectedVariant.name : vm.car.variant_name}}</td></tr>
+            <tr><th>Body Type</th><td>{{vm.car.body_type}}</td></tr>
+            <tr><th>Fuel Type</th><td>{{vm.spec().fuel_type}}</td></tr>
+            <tr ng-if="!vm.isEv()"><th>Engine</th><td>{{vm.spec().engine_cc || '—'}} <span ng-if="vm.spec().engine_cc">cc</span></td></tr>
+            <tr ng-if="vm.isEv()"><th>Battery</th><td>{{vm.spec().battery_kwh}} kWh</td></tr>
+            <tr ng-if="vm.isEv()"><th>Range</th><td>{{vm.spec().range_km}} km (claimed)</td></tr>
+            <tr><th>Max Power</th><td>{{vm.spec().power_bhp || '—'}} <span ng-if="vm.spec().power_bhp">bhp</span></td></tr>
+            <tr><th>Max Torque</th><td>{{vm.spec().torque_nm || '—'}} <span ng-if="vm.spec().torque_nm">Nm</span></td></tr>
+            <tr><th>Transmission</th><td>{{vm.spec().transmission}}</td></tr>
+            <tr ng-if="!vm.isEv()"><th>Mileage</th><td>{{vm.spec().mileage_kmpl || '—'}} <span ng-if="vm.spec().mileage_kmpl">{{vm.mileageUnit()}}</span></td></tr>
+            <tr><th>Boot Space</th><td>{{vm.spec().boot_space_l || '—'}} <span ng-if="vm.spec().boot_space_l">litres</span></td></tr>
+            <tr><th>Airbags</th><td>{{vm.spec().airbags || '—'}}</td></tr>
+            <tr><th>Safety Rating</th><td><span class="stars-txt">{{vm.stars(vm.spec().ncap_stars)}}</span> <small>(indicative)</small></td></tr>
+            <tr><th>Ground Clearance</th><td>{{vm.spec().ground_clearance_mm || '—'}} <span ng-if="vm.spec().ground_clearance_mm">mm</span></td></tr>
+            <tr><th>Kerb Weight</th><td>{{vm.spec().kerb_weight_kg || '—'}} <span ng-if="vm.spec().kerb_weight_kg">kg</span></td></tr>
+            <tr><th>Seating</th><td>{{vm.car.seating}} persons</td></tr>
+            <tr><th>City</th><td>{{vm.listing().city || vm.car.city}}</td></tr>
+            <tr ng-if="vm.car.type==='used'"><th>Year</th><td>{{vm.car.year}}</td></tr>
+            <tr ng-if="vm.car.type==='used'"><th>KM Driven</th><td>{{vm.car.km_driven | number}} km</td></tr>
+            <tr ng-if="vm.car.type==='used'"><th>Owner Count</th><td>{{vm.car.owner_count}}</td></tr>
+            <tr ng-if="vm.dealer().name"><th>Dealer</th><td>{{vm.dealer().name}}, {{vm.dealer().city}}</td></tr>
+          </table>
+          <div class="feature-block" ng-if="vm.spec().features.length">
+            <h4>Key features of this variant</h4>
+            <div class="feature-chips"><span class="chip chip-static" ng-repeat="f in vm.spec().features">{{f}}</span></div>
+          </div>
+        </div>
+
+        <!-- All Variants Tab: side-by-side table, click a row to select it -->
+        <div ng-show="vm.tab==='variants'" class="variant-table-wrap" ng-if="vm.isNew()">
+          <table class="variant-table">
+            <thead><tr><th>Variant</th><th>Fuel</th><th>Trans.</th><th>Power</th><th>Mileage / Range</th><th>Airbags</th><th>Price</th></tr></thead>
+            <tbody>
+              <tr ng-repeat="v in vm.car.variants" ng-class="{'selected': vm.selectedVariant.id === v.id}" ng-click="vm.selectVariant(v)">
+                <td><strong>{{v.name}}</strong></td>
+                <td>{{v.fuel_type}}</td>
+                <td>{{v.transmission}}</td>
+                <td>{{v.power_bhp}} bhp</td>
+                <td>{{v.fuel_type === 'Electric' ? v.range_km + ' km' : (v.mileage_kmpl || '—') + ' ' + vm.mileageUnit(v)}}</td>
+                <td>{{v.airbags}}</td>
+                <td>{{(v.listing.listing_price || v.price) | inr}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- On-Road Price Tab -->
+        <div ng-show="vm.tab==='price'" class="onroad-price">
+          <h3>On-Road Price Breakdown</h3>
+          <table class="price-table">
+            <tr><td>Ex-Showroom Price</td><td>{{vm.onRoadPrice().exShowroom | inrFull}}</td></tr>
+            <tr><td>RTO &amp; Road Tax (~7.5%)</td><td>{{vm.onRoadPrice().rto | inrFull}}</td></tr>
+            <tr><td>Insurance (~3.5%)</td><td>{{vm.onRoadPrice().insurance | inrFull}}</td></tr>
+            <tr><td>Other Charges</td><td>{{vm.onRoadPrice().others | inrFull}}</td></tr>
+            <tr class="price-total"><td><strong>Total On-Road</strong></td><td><strong>{{vm.onRoadPrice().total | inrFull}}</strong></td></tr>
+          </table>
+          <p class="price-note">* Prices are indicative and vary by state and dealer.</p>
+        </div>
+
+        <!-- EMI Tab -->
+        <div ng-show="vm.tab==='emi'">
+          <emi-calc base-price="vm.currentPrice()"></emi-calc>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div ng-show="vm.tab==='reviews'" class="reviews-section">
+          <h3>User Reviews <span class="count">({{vm.reviews.length}})</span></h3>
+          <div class="empty" ng-if="!vm.reviews.length">No reviews yet — be the first!</div>
+          <div class="review-card" ng-repeat="r in vm.reviews">
+            <div class="review-header">
+              <star-rating rating="r.rating" readonly="true"></star-rating>
+              <strong>{{r.title}}</strong>
+              <span class="review-author">by {{r.user_name || 'Anonymous'}} · {{r.timestamp | date:'mediumDate'}}</span>
+            </div>
+            <p>{{r.body}}</p>
+            <div class="review-pros-cons" ng-if="r.pros.length || r.cons.length">
+              <span class="pros" ng-if="r.pros.length">✓ {{r.pros.join(', ')}}</span>
+              <span class="cons" ng-if="r.cons.length">✗ {{r.cons.join(', ')}}</span>
+            </div>
+          </div>
+
+          <div class="review-form" ng-if="vm.user">
+            <h4>Write a Review</h4>
+            <star-rating rating="vm.newReview.rating" readonly="false"></star-rating>
+            <input type="text" ng-model="vm.newReview.title" class="form-input" placeholder="Review title">
+            <textarea ng-model="vm.newReview.body" class="form-textarea" placeholder="Your experience..."></textarea>
+            <input type="text" ng-model="vm.newReview.pros" class="form-input" placeholder="Pros (comma-separated)">
+            <input type="text" ng-model="vm.newReview.cons" class="form-input" placeholder="Cons (comma-separated)">
+            <button class="btn btn-primary" ng-click="vm.submitReview()">Submit Review</button>
+            <div class="msg" ng-if="vm.reviewMsg">{{vm.reviewMsg}}</div>
+          </div>
+          <div ng-if="!vm.user" class="alert alert-info"><a href="#!/login">Login</a> to write a review.</div>
+        </div>
+
+        <!-- Book Test Drive Tab -->
+        <div ng-show="vm.tab==='book'" class="book-form">
+          <h3>Book a Test Drive</h3>
+          <div ng-if="vm.booked" class="alert alert-success">{{vm.bookMsg}}</div>
+          <div ng-if="!vm.booked">
+            <div class="alert alert-error" ng-if="vm.bookError">{{vm.bookError}}</div>
+            <div class="form-group">
+              <label>Preferred Date</label>
+              <input type="date" ng-model="vm.bookForm.scheduled_date" ng-attr-min="{{vm.today}}" class="form-input">
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <textarea ng-model="vm.bookForm.notes" class="form-textarea" placeholder="Any special requests..."></textarea>
+            </div>
+            <button class="btn btn-primary" ng-click="vm.bookTestDrive()" ng-disabled="!vm.user">
+              {{vm.user ? 'Book Test Drive' : 'Login to Book'}}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Quick Stats Sidebar (follows the selected variant) -->
+      <aside class="detail-sidebar">
+        <div class="sidebar-card">
+          <h4>Key Specs <small class="side-variant">{{vm.isNew() ? vm.selectedVariant.name : vm.car.variant_name}}</small></h4>
+          <div class="spec-item"><span>⛽</span> {{vm.spec().fuel_type}}</div>
+          <div class="spec-item"><span>⚙️</span> {{vm.spec().transmission}}</div>
+          <div class="spec-item" ng-if="vm.spec().power_bhp"><span>🐎</span> {{vm.spec().power_bhp}} bhp · {{vm.spec().torque_nm}} Nm</div>
+          <div class="spec-item" ng-if="!vm.isEv() && vm.spec().mileage_kmpl"><span>💧</span> {{vm.spec().mileage_kmpl}} {{vm.mileageUnit()}}</div>
+          <div class="spec-item" ng-if="vm.isEv()"><span>🔋</span> {{vm.spec().range_km}} km · {{vm.spec().battery_kwh}} kWh</div>
+          <div class="spec-item"><span>🛡️</span> {{vm.spec().airbags}} airbags</div>
+          <div class="spec-item"><span>👥</span> {{vm.car.seating}} Seater</div>
+        </div>
+        <div class="sidebar-card">
+          <h4>Dealer</h4>
+          <p><strong>{{vm.dealer().name || 'AutoBid Partner Dealer'}}</strong></p>
+          <p>{{vm.dealer().address || vm.dealer().city}}</p>
+        </div>
+        <div class="sidebar-card">
+          <a href="#!/compare" class="btn btn-outline w-full">View Compare List</a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Similar cars — ML nearest neighbours in spec / price space -->
+    <div class="similar-section" ng-if="vm.similar.length">
+      <h3>🤖 Similar cars you may like</h3>
+      <div class="similar-grid">
+        <a class="similar-card" ng-repeat="s in vm.similar" ng-href="#!/new-cars/{{s.id}}">
+          <img ng-src="{{s.image_url}}" alt="{{s.model_name}}" onerror="this.src='/img/car-placeholder.svg'">
+          <div class="similar-body">
+            <div class="car-card-brand">{{s.brand_name}}</div>
+            <strong>{{s.model_name}}</strong>
+            <div class="car-card-price"><small class="from-label">From</small> {{s.listing_price | inr}}</div>
+            <small class="similar-pct">{{s.similarity}}% similar</small>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading" ng-if="vm.loading">Loading car details...</div>
+<div class="not-found" ng-if="!vm.loading && !vm.car">Car not found. <a href="#!/new-cars">Browse cars</a></div>

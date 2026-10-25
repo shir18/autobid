@@ -1,0 +1,199 @@
+<!-- Buyer Dashboard Template — Reverse Bidding + Orders + Shortlist + Test drives + Activity -->
+<div class="page-dashboard">
+  <div class="container">
+    <div class="dashboard-header">
+      <h2>Buyer Dashboard</h2>
+      <span class="welcome">Welcome, {{vm.user.name}}</span>
+    </div>
+
+    <div class="alert" ng-if="vm.notice" ng-class="vm.notice.type === 'success' ? 'alert-success' : 'alert-error'">{{vm.notice.text}}</div>
+
+    <!-- Tabs -->
+    <div class="dash-tabs">
+      <button class="dash-tab" ng-class="{'active': vm.tab==='requirements'}" ng-click="vm.selectTab('requirements')">Requirements</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='orders'}" ng-click="vm.selectTab('orders')">
+        Orders <span class="badge badge-blue" ng-if="vm.orderCounts.confirmed">{{vm.orderCounts.confirmed}}</span>
+      </button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='shortlist'}" ng-click="vm.selectTab('shortlist')">Shortlist</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='bookings'}" ng-click="vm.selectTab('bookings')">Test Drives</button>
+      <button class="dash-tab" ng-class="{'active': vm.tab==='activity'}" ng-click="vm.selectTab('activity')">Activity</button>
+    </div>
+
+    <!-- Requirements Tab -->
+    <div ng-show="vm.tab==='requirements'">
+      <div class="tab-header">
+        <h3>My Requirements</h3>
+        <button class="btn btn-primary btn-sm" ng-click="vm.showReqForm = !vm.showReqForm">{{vm.showReqForm ? 'Cancel' : '+ Post Requirement'}}</button>
+      </div>
+
+      <!-- Post Requirement Form -->
+      <div class="req-form card" ng-if="vm.showReqForm">
+        <h4>Post a New Requirement</h4>
+        <p class="hint">Tell dealers what you want — they will compete with their best price.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Min Budget (₹)</label>
+            <input type="number" min="0" ng-model="vm.reqForm.budget_min" class="form-input" placeholder="800000">
+          </div>
+          <div class="form-group">
+            <label>Max Budget (₹) *</label>
+            <input type="number" min="1" ng-model="vm.reqForm.budget_max" class="form-input" placeholder="1500000">
+          </div>
+          <div class="form-group">
+            <label>Body Type</label>
+            <select ng-model="vm.reqForm.body_type" class="form-select">
+              <option value="">Any</option>
+              <option value="Sedan">Sedan</option>
+              <option value="SUV">SUV</option>
+              <option value="Hatchback">Hatchback</option>
+              <option value="MUV">MUV</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fuel</label>
+            <select ng-model="vm.reqForm.fuel" class="form-select">
+              <option value="">Any</option>
+              <option>Petrol</option><option>Diesel</option><option>Electric</option><option>CNG</option><option>Hybrid</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <select ng-model="vm.reqForm.city" class="form-select">
+              <option value="">-- Select --</option>
+              <option>Mumbai</option><option>Delhi</option><option>Bangalore</option><option>Chennai</option><option>Hyderabad</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Need it within (days)</label>
+            <input type="number" min="1" ng-model="vm.reqForm.timeline_days" class="form-input" placeholder="30">
+          </div>
+        </div>
+        <button class="btn btn-primary" ng-click="vm.submitReq()">Submit Requirement</button>
+        <div class="msg msg-error" ng-if="vm.reqMsg">{{vm.reqMsg}}</div>
+      </div>
+
+      <div class="loading" ng-if="vm.loading.requirements">Loading...</div>
+      <div class="empty" ng-if="!vm.loading.requirements && !vm.requirements.length">No requirements yet. Post one and let dealers compete for you!</div>
+
+      <div class="req-card card" ng-repeat="req in vm.requirements">
+        <div class="req-header">
+          <span class="badge" ng-class="req.status | statusClass">{{req.status | statusLabel}}</span>
+          <span class="req-city">📍 {{req.city}}</span>
+          <span class="req-date">{{req.created_at | date:'mediumDate'}}</span>
+        </div>
+        <div class="req-details">
+          Budget: <strong>{{req.budget_min | inr}} – {{req.budget_max | inr}}</strong>
+          &bull; {{req.body_type || 'Any body'}} &bull; {{req.fuel || 'Any fuel'}}
+          &bull; within {{req.timeline_days}} days
+          &bull; <strong>{{req.offer_count}} offer(s)</strong>
+          <span ng-if="req.lowest_offer"> &bull; best price <strong>{{req.lowest_offer | inr}}</strong></span>
+        </div>
+
+        <div class="req-actions">
+          <button class="btn btn-sm btn-outline" ng-click="vm.loadOffers(req)" ng-if="req.offer_count > 0">
+            {{vm.offersByReq[req.id] ? 'Hide Offers' : 'View Offers'}}
+          </button>
+          <button class="btn btn-sm btn-ghost" ng-click="vm.closeRequirement(req)" ng-if="req.status === 'open'">Close requirement</button>
+        </div>
+
+        <!-- Offers Panel (toggle) -->
+        <div ng-if="vm.offersByReq[req.id]" class="offers-panel">
+          <div class="offer-row" ng-repeat="offer in vm.offersByReq[req.id]">
+            <div>
+              <strong>{{offer.dealer_name}}</strong> ({{offer.dealer_city}})
+              <span class="verified" ng-if="offer.verified">✓ verified</span>
+              <span class="badge" ng-class="offer.status | statusClass">{{offer.status | statusLabel}}</span>
+              <span class="badge badge-great" ng-if="offer.status !== 'rejected' && offer.price == vm.lowestPrice(vm.offersByReq[req.id])">Lowest</span>
+            </div>
+            <div>Price: <strong>{{offer.price | inr}}</strong> &bull; Delivery: {{offer.delivery_days}} days</div>
+            <div ng-if="offer.freebies" class="freebies">🎁 {{offer.freebies}}</div>
+            <div class="offer-actions">
+              <button class="btn btn-primary btn-sm" ng-if="offer.status === 'pending' && req.status === 'open'"
+                      ng-click="vm.acceptOffer(offer, req)">✓ Accept This Offer</button>
+              <button class="btn btn-ghost btn-sm" ng-click="vm.chatWithDealer(offer)">💬 Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div ng-show="vm.tab==='orders'">
+      <h3>My Orders</h3>
+      <div class="loading" ng-if="vm.loading.orders">Loading...</div>
+      <div class="order-row card" ng-repeat="order in vm.orders">
+        <div class="order-header">
+          <span class="badge" ng-class="order.status | statusClass">{{order.status | statusLabel}}</span>
+          <span>Order #{{order.id}}</span>
+          <span>{{order.created_at | date:'mediumDate'}}</span>
+        </div>
+        <div>Dealer: <strong>{{order.dealer_name}}</strong> ({{order.dealer_city}})</div>
+        <div>Price: <strong>{{order.offer_price | inr}}</strong> &bull; Delivery: {{order.delivery_days}} days</div>
+        <div ng-if="order.freebies">🎁 {{order.freebies}}</div>
+        <div class="order-actions" ng-if="order.status === 'confirmed'">
+          <button class="btn btn-sm btn-ghost" ng-click="vm.cancelOrder(order)">Cancel order</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.orders && !vm.orders.length">No orders yet — accept an offer to create one.</div>
+    </div>
+
+    <!-- Shortlist Tab -->
+    <div ng-show="vm.tab==='shortlist'">
+      <h3>My Shortlist</h3>
+      <div class="loading" ng-if="vm.loading.shortlist">Loading...</div>
+      <div class="cars-grid" ng-if="!vm.loading.shortlist">
+        <div class="car-card" ng-repeat="car in vm.shortlist">
+          <img ng-src="{{car.image_url}}" alt="{{car.brand_name}}" class="car-img" onerror="this.src='/img/car-placeholder.svg'">
+          <div class="car-card-body">
+            <div class="car-card-name">{{car.brand_name}} {{car.model_name}}</div>
+            <div class="car-card-variant">{{car.variant_name}}</div>
+            <div class="car-card-price">{{car.listing_price | inr}}</div>
+          </div>
+          <div class="car-card-footer">
+            <a href="#!/new-cars/{{car.id}}" class="btn btn-sm btn-outline">View</a>
+            <button class="btn btn-sm btn-ghost" ng-click="vm.removeShortlisted(car)">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.shortlist && !vm.shortlist.length">No cars shortlisted yet. <a href="#!/new-cars">Browse cars</a></div>
+    </div>
+
+    <!-- Test drives -->
+    <div ng-show="vm.tab==='bookings'">
+      <h3>My Test Drives</h3>
+      <div class="loading" ng-if="vm.loading.bookings">Loading...</div>
+      <div class="order-row card" ng-repeat="b in vm.bookings">
+        <div class="order-header">
+          <span class="badge" ng-class="b.status | statusClass">{{b.status | statusLabel}}</span>
+          <strong>{{b.brand_name}} {{b.model_name}} {{b.variant_name}}</strong>
+          <span>{{vm.parseDate(b.scheduled_date) | date:'fullDate'}}</span>
+        </div>
+        <div>at {{b.dealer_name}} ({{b.dealer_city}})</div>
+        <div ng-if="b.notes" class="hint">“{{b.notes}}”</div>
+        <div class="order-actions" ng-if="b.status !== 'cancelled'">
+          <button class="btn btn-sm btn-ghost" ng-click="vm.cancelBooking(b)">Cancel</button>
+        </div>
+      </div>
+      <div class="empty" ng-if="!vm.loading.bookings && !vm.bookings.length">No test drives booked. <a href="#!/dealers">Book one</a></div>
+    </div>
+
+    <!-- Activity Tab -->
+    <div ng-show="vm.tab==='activity'">
+      <h3>Activity Feed</h3>
+      <div class="loading" ng-if="vm.loading.activity">Loading...</div>
+      <div class="activity-item" ng-repeat="item in vm.activity">
+        <span class="activity-icon">
+          <span ng-if="item.type==='new_offer'">💌</span>
+          <span ng-if="item.type==='offer_accepted'">✅</span>
+          <span ng-if="item.type==='offer_rejected'">❌</span>
+          <span ng-if="item.type==='message_received'">💬</span>
+          <span ng-if="item.type.indexOf('booking') === 0">🚗</span>
+          <span ng-if="item.type==='order_updated'">📦</span>
+        </span>
+        <span class="activity-text">{{item.data.message || (item.type | statusLabel)}}</span>
+        <span class="activity-time">{{item.timestamp | date:'short'}}</span>
+      </div>
+      <div class="empty" ng-if="!vm.loading.activity && !vm.activity.length">No recent activity.</div>
+    </div>
+  </div>
+</div>

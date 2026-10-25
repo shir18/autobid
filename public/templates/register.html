@@ -1,0 +1,44 @@
+<!-- Register Template -->
+<div class="page-auth">
+  <div class="auth-card">
+    <h2>Create AutoBid Account</h2>
+    <div class="alert alert-error" ng-if="vm.error">{{vm.error}}</div>
+    <form ng-submit="vm.submit()">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" ng-model="vm.form.name" class="form-input" required placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" ng-model="vm.form.email" class="form-input" required placeholder="you@example.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" ng-model="vm.form.password" class="form-input" required minlength="6" placeholder="Min 6 chars" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>I am a</label>
+        <select ng-model="vm.form.role" class="form-select">
+          <option value="buyer">Buyer</option>
+          <option value="dealer">Dealer</option>
+        </select>
+      </div>
+      <div ng-if="vm.form.role === 'dealer'">
+        <div class="form-group">
+          <label>Dealership name</label>
+          <input type="text" ng-model="vm.form.dealership" class="form-input" placeholder="e.g. Sharma Motors">
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <select ng-model="vm.form.city" class="form-select">
+            <option ng-repeat="c in vm.cities" value="{{c}}">{{c}}</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-full" ng-disabled="vm.loading">
+        {{vm.loading ? 'Creating account...' : 'Register'}}
+      </button>
+    </form>
+    <p class="auth-switch">Already have an account? <a href="#!/login">Login</a></p>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="catalog.css"?>
+<catalog>
+  <car type="new">
+    <brand>Maruti Suzuki</brand>
+    <model>Swift</model>
+    <city>Mumbai</city>
+    <price>650000</price>
+  </car>
+  <car type="new">
+    <brand>Hyundai</brand>
+    <model>Creta</model>
+    <city>Chennai</city>
+    <price>1150000</price>
+  </car>
+  <car type="used">
+    <brand>Tata Motors</brand>
+    <model>Nexon</model>
+    <city>Hyderabad</city>
+    <price>870000</price>
+  </car>
+</catalog>

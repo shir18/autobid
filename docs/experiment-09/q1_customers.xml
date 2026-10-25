@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE customers [
+  <!ELEMENT customers (customer+)>
+  <!ELEMENT customer (name, age, preferred_car, budget, address?, phone?)>
+  <!ELEMENT name (#PCDATA)>
+  <!ELEMENT age (#PCDATA)>
+  <!ELEMENT preferred_car (#PCDATA)>
+  <!ELEMENT budget (#PCDATA)>
+  <!ELEMENT address (#PCDATA)>
+  <!ELEMENT phone (#PCDATA)>
+]>
+<customers>
+  <customer>
+    <name>Rahul Sharma</name>
+    <age>34</age>
+    <preferred_car>Hyundai Creta</preferred_car>
+    <budget>1500000</budget>
+    <address>123 Palm Ave, Mumbai</address>
+    <phone>9876543210</phone>
+  </customer>
+  <customer>
+    <name>Priya Singh</name>
+    <age>28</age>
+    <preferred_car>Tata Nexon</preferred_car>
+    <budget>1200000</budget>
+    <!-- address and phone are optional -->
+  </customer>
+  <customer>
+    <name>Amit Patel</name>
+    <age>42</age>
+    <preferred_car>Mahindra XUV700</preferred_car>
+    <budget>2200000</budget>
+    <phone>9123456780</phone>
+  </customer>
+</customers>

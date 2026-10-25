@@ -1,0 +1,12 @@
+/* AutoBid catalog — CSS view of /api/xml/cars?mode=css (every XML element needs display: block) */
+catalog { display: block; font-family: system-ui, sans-serif; background: #0F172A; color: #E2E8F0; padding: 16px; min-height: 100vh; }
+catalog::before { content: 'AutoBid catalog'; display: block; font-size: 1.5em; font-weight: 700; margin: 8px; color: #818CF8; }
+car { display: block; border: 1px solid #334155; border-left: 4px solid #6366F1; border-radius: 8px;
+      background: #1E293B; margin: 8px; padding: 10px 14px; }
+car[type="used"] { border-left-color: #F59E0B; }
+brand, model, variant { display: inline; font-weight: 700; font-size: 1.05em; margin-right: 6px; }
+variant { font-weight: 400; color: #94A3B8; }
+year, city, bodyType, fuel, transmission { display: inline-block; font-size: .8em; background: #334155; border-radius: 99px; padding: 2px 10px; margin: 6px 6px 0 0; }
+year::before { content: 'Year '; color: #94A3B8; }
+price { display: block; margin-top: 8px; color: #34D399; font-weight: 700; }
+price::before { content: 'Price: Rs. '; font-weight: 400; color: #94A3B8; }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE service_manual SYSTEM "q4_service_manual.dtd">
+<service_manual>
+  <service_task>
+    <title>Engine Oil Change</title>
+    <parts_list>
+      <part quantity="4" unit="liters">Synthetic Engine Oil 5W-30</part>
+      <part quantity="1" unit="piece">Oil Filter</part>
+      <part>Drain Plug Washer</part>
+    </parts_list>
+    <steps>
+      <step>Lift the car and place an oil drain pan underneath.</step>
+      <step>Remove the drain plug and let the old oil drain completely.</step>
+      <step>Replace the oil filter and the drain plug washer.</step>
+      <step>Fill the engine with the specified quantity of new oil.</step>
+    </steps>
+  </service_task>
+</service_manual>

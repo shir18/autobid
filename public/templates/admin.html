@@ -1,0 +1,29 @@
+<!-- Admin overview -->
+<div class="page-dashboard">
+  <div class="container">
+    <div class="dashboard-header"><h2>Admin Overview</h2><span class="welcome">{{vm.user.name}}</span></div>
+    <div class="alert alert-error" ng-if="vm.error">{{vm.error}}</div>
+    <div class="tco-cards" ng-if="vm.stats">
+      <div class="tco-card blue"><div class="tco-card-label">Users</div><div class="tco-card-value">{{vm.total(vm.stats.users)}}</div></div>
+      <div class="tco-card green"><div class="tco-card-label">Dealers</div><div class="tco-card-value">{{vm.stats.dealers}}</div></div>
+      <div class="tco-card yellow"><div class="tco-card-label">Requirements (open)</div><div class="tco-card-value">{{vm.count(vm.stats.requirements,'status','open')}}</div></div>
+      <div class="tco-card red"><div class="tco-card-label">Offers pending</div><div class="tco-card-value">{{vm.count(vm.stats.offers,'status','pending')}}</div></div>
+    </div>
+    <div class="card" ng-if="vm.stats">
+      <h4>Marketplace health (GROUP BY status)</h4>
+      <table class="tco-table">
+        <tr><td>Requirements</td><td><span ng-repeat="r in vm.stats.requirements">{{r.status | statusLabel}}: <strong>{{r.count}}</strong>&nbsp;&nbsp;</span></td></tr>
+        <tr><td>Offers</td><td><span ng-repeat="r in vm.stats.offers">{{r.status | statusLabel}}: <strong>{{r.count}}</strong>&nbsp;&nbsp;</span></td></tr>
+        <tr><td>Orders</td><td><span ng-repeat="r in vm.stats.orders">{{r.status | statusLabel}}: <strong>{{r.count}}</strong>&nbsp;&nbsp;</span><span ng-if="!vm.stats.orders.length">none yet</span></td></tr>
+        <tr><td>Test drives</td><td><span ng-repeat="r in vm.stats.bookings">{{r.status | statusLabel}}: <strong>{{r.count}}</strong>&nbsp;&nbsp;</span><span ng-if="!vm.stats.bookings.length">none yet</span></td></tr>
+        <tr><td>Car listings</td><td><span ng-repeat="r in vm.stats.cars">{{r.type}}/{{r.status}}: <strong>{{r.count}}</strong>&nbsp;&nbsp;</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Recent users</h4>
+      <table class="tco-table">
+        <tr ng-repeat="u in vm.users | limitTo:30"><td>{{u.name}}</td><td>{{u.email}}</td><td>{{u.role}}</td></tr>
+      </table>
+    </div>
+  </div>
+</div>

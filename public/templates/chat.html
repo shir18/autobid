@@ -1,0 +1,60 @@
+<!-- Chat Template -->
+<div class="page-chat">
+  <div class="container">
+    <h2>💬 Messages</h2>
+    <p class="hint">Chat with dealers about a car or an offer. To start a chat, open a car and press “Chat with dealer”, or press “Chat” next to an offer.</p>
+
+    <div class="chat-layout" ng-if="vm.user">
+      <!-- Conversation List -->
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header"><h4>Conversations</h4></div>
+        <div class="conv-item" ng-repeat="conv in vm.conversations"
+             ng-class="{'active': vm.selectedConv && vm.selectedConv._id === conv._id}"
+             ng-click="vm.selectConv(conv)">
+          <div class="conv-id">{{vm.title(conv)}}</div>
+          <div class="conv-meta">{{conv.last_message ? (conv.last_message.text | limitTo:40) : 'No messages yet'}}</div>
+        </div>
+        <div class="empty" ng-if="!vm.loading && !vm.conversations.length">No conversations yet.</div>
+
+        <!-- Activity Feed -->
+        <div class="activity-panel" ng-if="vm.activity.length">
+          <h4 class="activity-title">Recent Activity</h4>
+          <div class="activity-item" ng-repeat="item in vm.activity | limitTo:5">
+            <span ng-if="item.type==='new_offer'">💌</span>
+            <span ng-if="item.type==='offer_accepted'">✅</span>
+            <span ng-if="item.type==='message_received'">💬</span>
+            <span ng-if="item.type==='offer_rejected'">❌</span>
+            <span ng-if="item.type.indexOf('booking') === 0">🚗</span>
+            <span ng-if="item.type==='order_updated'">📦</span>
+            <span class="activity-text">{{item.data.message || (item.type | statusLabel)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Thread -->
+      <div class="chat-main">
+        <div ng-if="!vm.selectedConv" class="chat-empty">Select a conversation to start chatting.</div>
+        <div ng-if="vm.selectedConv" class="chat-thread">
+          <div class="chat-thread-title">{{vm.title(vm.selectedConv)}}</div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="empty" ng-if="!vm.messages.length">Say hello 👋</div>
+            <div class="msg-bubble" ng-repeat="msg in vm.messages" ng-class="{'msg-mine': vm.isMine(msg)}">
+              <div class="msg-text">{{msg.text}}</div>
+              <div class="msg-attachment" ng-if="msg.attachment_url">
+                📎 <a ng-href="{{msg.attachment_url}}" target="_blank" rel="noopener">Attachment</a>
+              </div>
+              <div class="msg-audio" ng-if="msg.audio_flag">🎤 Voice message</div>
+              <div class="msg-time">{{msg.timestamp | date:'short'}}</div>
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" ng-model="vm.newMsg" class="form-input chat-input" maxlength="2000"
+                   placeholder="Type a message..." ng-keyup="$event.keyCode === 13 && vm.send()">
+            <button class="btn btn-primary" ng-click="vm.send()">Send</button>
+          </div>
+          <div class="msg-error" ng-if="vm.sendMsg">{{vm.sendMsg}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE autobid_staff [
+  <!ELEMENT autobid_staff (employee+)>
+  <!ELEMENT employee (name, ID, department, address?)>
+  <!ELEMENT name (#PCDATA)>
+  <!ELEMENT ID (#PCDATA)>
+  <!ELEMENT department (#PCDATA)>
+  <!ELEMENT address (#PCDATA)>
+]>
+<autobid_staff>
+  <employee>
+    <name>Suresh Kumar</name>
+    <ID>INS001</ID>
+    <department>Car Inspection</department>
+    <address>Andheri West, Mumbai</address>
+  </employee>
+  <employee>
+    <name>Neha Gupta</name>
+    <ID>SUP042</ID>
+    <department>Bidding Support</department>
+  </employee>
+  <!-- Example of an invalid element (commented out to keep file valid)
+  <employee>
+    <name>Vikram Singh</name>
+    <ID>SAL010</ID>
+    <department>Sales</department>
+    <commission>50000</commission> <! - - This would cause an error: element "commission" not allowed here - - >
+  </employee>
+  -->
+</autobid_staff>

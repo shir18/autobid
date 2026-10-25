@@ -1,0 +1,124 @@
+<!-- Compare Lab Template -->
+<div class="page-compare">
+  <div class="container">
+    <h2>Compare Lab <span class="count">({{vm.cars.length}}/4)</span></h2>
+    <p class="compare-sub">Side-by-side comparison — <span class="highlight-legend">highlighted cells</span> = best value</p>
+
+    <div class="loading" ng-if="vm.loading">Loading compare data...</div>
+
+    <div ng-if="!vm.loading && !vm.cars.length" class="empty-compare">
+      <h3>No cars in compare</h3>
+      <p>Browse new or used cars and click "+ Compare" to add them here.</p>
+      <button class="btn btn-primary" ng-click="vm.goShop()">Browse Cars</button>
+    </div>
+
+    <div ng-if="!vm.loading && vm.cars.length > 0">
+      <!-- Sort Bar -->
+      <div class="compare-sort-bar">
+        <span>Sort by:</span>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.sortBy('listing_price')">Price</button>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.sortBy('mileage_kmpl')">Mileage</button>
+        <button class="btn btn-sm btn-ghost" ng-click="vm.sortBy('engine_cc')">Engine</button>
+      </div>
+
+      <!-- Compare Table -->
+      <div class="compare-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th class="compare-label-col">Specification</th>
+              <th ng-repeat="car in vm.cars" class="compare-car-col">
+                <img ng-src="{{car.image_url}}" alt="{{car.brand_name}}" class="compare-img" onerror="this.src='/img/car-placeholder.svg'">
+                <div class="compare-car-name">{{car.brand_name}} {{car.model_name}}</div>
+                <div class="compare-car-variant">{{car.variant_name}}</div>
+                <button class="btn btn-sm btn-ghost remove-btn" ng-click="vm.remove(car)">✕ Remove</button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="compare-label">Price</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'listing_price')}">
+                {{car.listing_price | inr}}
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-label">Mileage</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'mileage_kmpl')}">
+                {{car.mileage_kmpl ? car.mileage_kmpl + (car.fuel_type === 'CNG' ? ' km/kg' : ' kmpl') : '—'}}
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-label">Engine</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'engine_cc')}">
+                {{car.engine_cc || '—'}} cc
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-label">Power</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'power_bhp')}">{{car.power_bhp ? car.power_bhp + ' bhp' : '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Torque</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'torque_nm')}">{{car.torque_nm ? car.torque_nm + ' Nm' : '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">EV range</td>
+              <td ng-repeat="car in vm.cars">{{car.range_km ? car.range_km + ' km · ' + car.battery_kwh + ' kWh' : '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Boot space</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'boot_space_l')}">{{car.boot_space_l ? car.boot_space_l + ' L' : '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Airbags</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'airbags')}">{{car.airbags || '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Safety rating</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'ncap_stars')}">{{car.ncap_stars ? car.ncap_stars + '★ (indicative)' : '—'}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Transmission</td>
+              <td ng-repeat="car in vm.cars">{{car.transmission}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Body Type</td>
+              <td ng-repeat="car in vm.cars">{{car.body_type}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Fuel</td>
+              <td ng-repeat="car in vm.cars">{{car.fuel_type}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Seating</td>
+              <td ng-repeat="car in vm.cars" ng-class="{'best-cell': vm.isBest(car, 'seating')}">
+                {{car.seating}} persons
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-label">City</td>
+              <td ng-repeat="car in vm.cars">{{car.city}}</td>
+            </tr>
+            <tr>
+              <td class="compare-label">Fair Price</td>
+              <td ng-repeat="car in vm.cars">
+                <fair-price-badge listing-id="car.id" price="car.listing_price"></fair-price-badge>
+              </td>
+            </tr>
+            <tr>
+              <td class="compare-label">Details</td>
+              <td ng-repeat="car in vm.cars">
+                <a href="#!/new-cars/{{car.id}}" class="btn btn-sm btn-primary">View Car</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="compare-actions">
+        <button class="btn btn-outline" ng-click="vm.goShop()">Add More Cars</button>
+      </div>
+    </div>
+  </div>
+</div>

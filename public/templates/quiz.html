@@ -1,0 +1,73 @@
+<!-- Smart Match Quiz Template -->
+<div class="page-quiz">
+  <div class="container">
+    <h2>🧠 Smart Match Quiz</h2>
+    <p class="quiz-sub">Answer 5 quick questions and we'll match you with the perfect car.</p>
+
+    <!-- Intro -->
+    <div class="quiz-intro" ng-if="vm.step === 0">
+      <div class="quiz-icon">🚗</div>
+      <h3>Find Your Perfect Car</h3>
+      <p>Our Smart Match algorithm scores every car in our catalog based on your preferences and shows you why each matched.</p>
+      <button class="btn btn-primary btn-lg" ng-click="vm.step = 1">Start Quiz</button>
+    </div>
+
+    <!-- Questions -->
+    <div class="quiz-question" ng-if="vm.step >= 1 && vm.step <= 5 && !vm.loading">
+      <div class="quiz-progress">
+        <div class="quiz-progress-bar" ng-style="{width: ((vm.step-1)/5*100) + '%'}"></div>
+      </div>
+      <div class="quiz-step-label">Question {{vm.step}} of 5</div>
+      <div ng-repeat="q in vm.questions" ng-if="$index + 1 === vm.step">
+        <div class="quiz-icon">{{q.icon}}</div>
+        <h3 class="quiz-q-text">{{q.text}}</h3>
+        <div class="quiz-options">
+          <button class="quiz-option" ng-repeat="opt in q.options"
+                  ng-class="{'selected': vm.answers[q.id] === opt.value}"
+                  ng-click="vm.answer(q, opt.value)">
+            {{opt.label}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="quiz-loading" ng-if="vm.loading">
+      <div class="spinner">⏳</div>
+      <p>Computing your matches...</p>
+    </div>
+
+    <!-- Results -->
+    <div class="quiz-results" ng-if="vm.step === 6 && !vm.loading">
+      <h3>🏆 Your Top Matches</h3>
+      <p class="quiz-ml-note">🤖 Ranked by a k-nearest-neighbours recommender over price, seating, body type, fuel, efficiency, safety, power and boot space.</p>
+      <div class="result-card" ng-repeat="result in vm.results">
+        <div class="result-rank">#{{$index + 1}}</div>
+        <div class="result-car">
+          <img ng-src="{{result.car.image_url}}" class="result-img" onerror="this.src='/img/car-placeholder.svg'">
+          <div class="result-info">
+            <div class="result-name">{{result.car.brand_name}} {{result.car.model_name}}</div>
+            <div class="result-variant">Best variant for you: <strong>{{result.car.variant_name}}</strong> · {{result.car.fuel_type}} · {{result.car.transmission}}</div>
+            <div class="result-price">{{result.car.listing_price | inr}}</div>
+          </div>
+        </div>
+        <div class="result-score-bar">
+          <div class="score-fill" ng-style="{width: result.score + '%', background: result.score > 75 ? '#10B981' : result.score > 50 ? '#F59E0B' : '#EF4444'}"></div>
+          <span class="score-label">{{result.score}}% match</span>
+        </div>
+        <div class="result-breakdown">
+          <h5>Why this matched:</h5>
+          <div class="breakdown-item" ng-repeat="b in result.breakdown">
+            <span class="breakdown-pts" ng-class="{'pts-good': b.pts > 0}">+{{b.pts}}pts</span>
+            <span>{{b.reason}}</span>
+          </div>
+        </div>
+        <a href="#!/new-cars/{{result.car.id}}" class="btn btn-outline btn-sm">View Details</a>
+      </div>
+
+      <div class="quiz-restart">
+        <button class="btn btn-ghost" ng-click="vm.restart()">↩ Retake Quiz</button>
+      </div>
+    </div>
+  </div>
+</div>

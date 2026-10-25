@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE inventory SYSTEM "q6_parts_inventory.dtd">
+<inventory>
+  <part id="PT001">
+    <name>Brembo Ceramic Brake Pads</name>
+    <category>Brakes &amp; Rotors</category>
+    <price>4500</price>
+    <description>High performance ceramic brake pads suitable for SUVs.</description>
+    <stock_quantity>45</stock_quantity>
+  </part>
+  <part id="PT002">
+    <name>Castrol MAGNATEC 5W-30</name>
+    <category>Engine Oil</category>
+    <price>1800</price>
+    <!-- description and stock_quantity are optional -->
+  </part>
+</inventory>

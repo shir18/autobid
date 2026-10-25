@@ -1,0 +1,10 @@
+<!ELEMENT service_manual (service_task+)>
+<!ELEMENT service_task (title, parts_list, steps)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT parts_list (part+)>
+<!ELEMENT part (#PCDATA)>
+<!ATTLIST part
+    quantity CDATA #IMPLIED
+    unit CDATA #IMPLIED>
+<!ELEMENT steps (step+)>
+<!ELEMENT step (#PCDATA)>

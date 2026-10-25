@@ -1,0 +1,6 @@
+<!ELEMENT dealership (car+)>
+<!ELEMENT car (model, brand+, year, price?)>
+<!ELEMENT model (#PCDATA)>
+<!ELEMENT brand (#PCDATA)>
+<!ELEMENT year (#PCDATA)>
+<!ELEMENT price (#PCDATA)>

@@ -1,0 +1,27 @@
+<!-- Login Template -->
+<div class="page-auth">
+  <div class="auth-card">
+    <h2>Login to AutoBid</h2>
+    <div class="alert alert-error" ng-if="vm.error">{{vm.error}}</div>
+    <form ng-submit="vm.submit()">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" ng-model="vm.form.email" class="form-input" required placeholder="buyer@demo.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" ng-model="vm.form.password" class="form-input" required placeholder="buyer123" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary w-full" ng-disabled="vm.loading">
+        {{vm.loading ? 'Logging in...' : 'Login'}}
+      </button>
+    </form>
+    <p class="auth-switch">Don't have an account? <a href="#!/register">Register</a></p>
+    <div class="demo-creds">
+      <p><strong>Demo credentials</strong> (click to fill):</p>
+      <p><a href="" ng-click="vm.fill('buyer@demo.com','buyer123')">buyer@demo.com / buyer123</a></p>
+      <p><a href="" ng-click="vm.fill('dealer@demo.com','dealer123')">dealer@demo.com / dealer123</a></p>
+      <p><a href="" ng-click="vm.fill('admin@demo.com','admin123')">admin@demo.com / admin123</a></p>
+    </div>
+  </div>
+</div>
